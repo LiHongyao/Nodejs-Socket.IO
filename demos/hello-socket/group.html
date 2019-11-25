@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Socket.IO chat</title>
+</head>
+<body>
+    <div style="float: left; width: 30%">
+        <button onclick="group1()">加入Group1</button>
+        <button onclick="group2()">加入Group2</button>
+        <hr>
+        群聊：<input type="text" id="msginput" style="border:1px solid #eee;">
+        <button type="button" id="sendmsg">发给世界用户</button>
+        <button type="button" id="sendtoourgroup">发给本组用户</button>
+    </div>
+    <div style="float: left; width: 60%" id="chatbox"></div>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    let username = prompt("请输入用户名");
+    let socket = io.connect("http://127.0.0.1:3000");
+    // 加入聊天组
+    let group1 = () => {
+        socket.emit('addgroup1', username);
+    };
+    let group2 = () => {
+        socket.emit('addgroup2', username);
+    };
+    // 获取聊天输入框
+    let msgInput = document.getElementById('msginput');
+    // 发送世界消息
+    let btn1 = document.getElementById('sendmsg');
+    btn1.addEventListener('click', () => {
+        let msg = msgInput.value;
+        socket.emit('sendMsg', { username, msg });
+    });
+    // 发送群组发送
+    let btn2 = document.getElementById('sendtoourgroup');
+    btn2.addEventListener('click', () => {
+        let msg = msgInput.value;
+        socket.emit('sendToOurGroup', { username, msg });
+    })
+    // 接收消息
+    let chatBox = document.getElementById('chatbox');
+    socket.on('receiveMsg', (data) => {
+        chatBox.insertAdjacentHTML("beforeend",`<div>${data.username}: ${data.msg}</div>`);
+    });
+    
+</script>
+</body>
+
+</html>

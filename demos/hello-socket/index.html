@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Socket.IO chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        form {
+            width: 100%;
+            background: #000;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        form input {
+            border: 0;
+            padding: 10px;
+            width: calc(100% - 103px);
+        }
+
+        form button {
+            width: 100px;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: 10px 0;
+        }
+
+        #messages {
+            list-style-type: none;
+        }
+
+        #messages li {
+            padding: 5px 10px;
+        }
+
+        #messages li:nth-child(odd) {
+            background: #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 聊天盒子 -->
+    <ul id="messages"></ul>
+    <!-- 发送消息 -->
+    <form action="">
+        <input autocomplete="off" />
+        <button type="button">Send</button>
+    </form>
+    <!-- 加载 socket.io-client
+         socket.io-client 暴露了一个 io 全局变量
+         然后连接服务器。 -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        /*
+        // 获取聊天用户名
+        let username = prompt("请输入用户名：");
+        // 请注意我们在调用 io() 时没有指定任何 URL
+        // 因为它默认将尝试连接到提供当前页面的主机。
+        const socket = io();
+        // 客户端发送消息
+        let sendBtn = document.querySelector("button");
+        let input = document.querySelector("input");
+        let list = document.querySelector("#messages");
+        sendBtn.onclick = function () {
+            // 显示当前用户发送的消息
+            let li = `<li style="text-align:right;color:blue;">${input.value}</li>`;
+            list.insertAdjacentHTML("beforeend", li);
+            // 将用户名和当前用户发送的消息发送给服务端
+            socket.emit("chat-message", JSON.stringify({
+                username,
+                message: input.value
+            }));
+            input.value = "";
+        }
+        // 客户端接收消息
+        socket.on("chat-message", data => {
+            let obj = JSON.parse(data);
+            // 不能接收自己的消息
+            if(obj.username == username) return;
+            // 将接收到的消息显示在页面中
+            let li = `<li>${obj.message}</li>`;
+            list.insertAdjacentHTML("beforeend", li);
+        });*/
+        let username = prompt("请输入您的名字");
+        let groupname = prompt("请输入您要加入的群组名");
+        // => 动态的链接不同群
+        let socket = io(`http://127.0.0.1:3000/${groupname}`);
+        let sendBtn = document.querySelector("button");
+        let input = document.querySelector("input");
+        let list = document.querySelector("#messages");
+        // 客户端发送消息
+        sendBtn.onclick = function () {
+            let element = `<li style="color:blue;text-align:right;">${input.value}</li>`;
+            list.insertAdjacentHTML("beforeend", element)
+            socket.emit("chat message", JSON.stringify({
+                username,
+                message: input.value
+            }));
+            input.value = "";
+            return false;
+        }
+        // 客户端接收消息
+        socket.on("chat message", data => {
+            let obj = JSON.parse(data);
+            // 不能接收自己的消息
+            if (obj.username === username) return;
+            let element = `<li>${obj.username}：${obj.message}</li>`;
+            list.insertAdjacentHTML("beforeend", element);
+        })
+    </script>
+</body>
+
+</html>
